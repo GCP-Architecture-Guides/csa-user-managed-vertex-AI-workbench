@@ -1,0 +1,290 @@
+##  Copyright 2023 Google LLC
+##  
+##  Licensed under the Apache License, Version 2.0 (the "License");
+##  you may not use this file except in compliance with the License.
+##  You may obtain a copy of the License at
+##  
+##      https://www.apache.org/licenses/LICENSE-2.0
+##  
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##  See the License for the specific language governing permissions and
+##  limitations under the License.
+
+
+##  This code creates demo environment for CSA Vertex AI Notebook with DLP Integration  ##
+##  This demo code is not built for production workload ##
+
+# set specific variables here for your own deployment
+
+/******************************
+    REQUIRED TO CHANGE
+******************************/
+variable "organization_id" {
+  type        = string
+  description = "organization id required"
+  default     = "873180247571"
+}
+
+variable "billing_account" {
+  type        = string
+  description = "billing account required"
+  default     = "XXXXX-XXXXX-XXXX"
+}
+
+variable "folder_id" {
+  type        = string
+  default     = "XXXXXXXXX"
+  description = "A folder to create this project under. If none is provided, the project will be created under the organization"
+}
+
+
+
+variable "vpc_sc_users" {
+  description = "User Email address that will own Vertex Workbench"
+  type        = list(any)
+  default     = ["user:USERNAME1@DOMAIN.com", "user:USERNAME2@DOMAIN.com"]
+}
+
+/*****************************
+RECOMMENDED DEFAULTS - DO NOT CHANGE
+
+unless you really really want to :)
+*****************************/
+
+variable "project_name" {
+  type        = string
+  default     = "csa-vertex-project"
+  description = "vertex workbench project to be created"
+}
+
+
+
+
+variable "enable_apis" {
+  description = "Which APIs to enable for this project."
+  type        = list(string)
+  default     = ["compute.googleapis.com", "cloudbilling.googleapis.com", "iam.googleapis.com", "notebooks.googleapis.com", "aiplatform.googleapis.com", "dns.googleapis.com", "artifactregistry.googleapis.com", "storage-component.googleapis.com", "storage.googleapis.com", "cloudresourcemanager.googleapis.com", "serviceusage.googleapis.com", "logging.googleapis.com", "accesscontextmanager.googleapis.com", "dlp.googleapis.com"]
+}
+
+variable "labels" {
+  description = "A set of key/value label pairs to assign to the project."
+  type        = map(string)
+
+  default = {
+    environment = "development"
+  }
+}
+
+variable "skip_delete" {
+  description = " If true, the Terraform resource can be deleted without deleting the Project via the Google API."
+  default     = "false"
+}
+
+variable "region" {
+  description = "what region to deploy to"
+  type        = string
+  default     = "us-central1"
+}
+
+variable "zone" {
+  description = "The GCP zone to create the instance in"
+  type        = string
+  default     = "us-central1-a"
+}
+
+variable "roles" {
+  type        = list(string)
+  description = "The roles that will be granted to the service account."
+  default     = ["roles/compute.admin", "roles/iam.serviceAccountUser", "roles/dlp.user", "roles/aiplatform.serviceAgent"]
+}
+
+variable "vpc-tf-roles" {
+  type        = list(string)
+  description = "The roles that will be granted to the service account."
+  default     = ["roles/serviceusage.serviceUsageAdmin", "roles/accesscontextmanager.policyAdmin", "roles/resourcemanager.organizationViewer", "roles/iam.organizationRoleViewer"]
+}
+variable "workbench_name" {
+  type        = string
+  description = "name for workbench instance"
+  default     = "securevertex-notebook"
+
+}
+
+variable "machine_type" {
+  type        = string
+  description = "compute engine machine type that workbench will run on"
+  default     = "c2d-standard-2"
+
+}
+
+variable "secure_boot" {
+  type        = bool
+  description = "compute engine machine type that workbench will run on"
+  default     = true
+
+}
+
+variable "source_image_family" {
+  description = "The OS Image family"
+  type        = string
+  default     = "common-cu110-notebooks"
+  #"common-cpu-notebooks-ubuntu-2004"
+  #gcloud compute images list --project deeplearning-platform-release
+}
+
+variable "source_image_project" {
+  description = "Google Cloud project with OS Image"
+  type        = string
+  default     = "deeplearning-platform-release"
+}
+
+variable "enable_gpu" {
+  type        = bool
+  description = "sets gpu enablement on the compute instance for vertex workbench"
+  default     = false
+
+}
+
+variable "boot_disk_type" {
+  type        = string
+  description = "Possible disk types for notebook instances. Possible values are: DISK_TYPE_UNSPECIFIED, PD_STANDARD, PD_SSD, PD_BALANCED, PD_EXTREME"
+  default     = "PD_SSD"
+}
+
+variable "boot_disk_size_gb" {
+  type        = string
+  description = "The size of the boot disk in GB attached to this instance, up to a maximum of 64000 GB (64 TB). The minimum recommended value is 100 GB. If not specified, this defaults to 100."
+  default     = "100"
+}
+
+variable "data_disk_type" {
+  type        = string
+  description = "Possible disk types for notebook instances. Possible values are: DISK_TYPE_UNSPECIFIED, PD_STANDARD, PD_SSD, PD_BALANCED, PD_EXTREME"
+  default     = "PD_SSD"
+}
+
+variable "data_disk_size_gb" {
+  type        = string
+  description = "The size of the boot disk in GB attached to this instance, up to a maximum of 64000 GB (64 TB). The minimum recommended value is 100 GB. If not specified, this defaults to 100."
+  default     = "100"
+}
+
+variable "no_remove_data_disk" {
+  type        = bool
+  description = "If true, the data disk will not be auto deleted when deleting the instance."
+  default     = false
+}
+
+variable "disk_encryption" {
+  type        = string
+  description = "Disk encryption method used on the boot and data disks, defaults to GMEK. Possible values are: DISK_ENCRYPTION_UNSPECIFIED, GMEK, CMEK"
+  default     = "GMEK"
+}
+
+variable "no_public_ip" {
+  type        = bool
+  description = "No public IP will be assigned to this instance"
+  default     = true
+}
+
+variable "no_proxy_access" {
+  type        = bool
+  description = "The notebook instance will not register with the proxy"
+  default     = false
+}
+
+variable "create_default_access_policy" {
+  type        = bool
+  default     = false
+  description = "Whether a default access policy needs to be created for the organization. If one already exists, this should be set to false."
+}
+
+variable "restricted_apis" {
+  description = "Which APIs to enable for this project."
+  type        = list(string)
+  default     = ["compute.googleapis.com", "notebooks.googleapis.com", "dns.googleapis.com", "artifactregistry.googleapis.com", "storage.googleapis.com", "logging.googleapis.com", "aiplatform.googleapis.com"]
+}
+
+variable "update-schedule" {
+  type        = string
+  description = "The time period you specify is stored as a notebook-upgrade-schedule metadata entry, in unix-cron format, Greenwich Mean Time (GMT)."
+  default     = "0 7 * * SUN"
+}
+
+
+
+
+/*****************************
+NOT USED IN THIS TEMPLATE BUT ARE CONFIGURABLE FOR VERTEX AI WORKBENCH
+
+variable "kms_key" {
+type          = string
+description   = "The KMS key used to encrypt the disks, only applicable if diskEncryption is CMEK. Format: projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}"
+
+}
+
+variable "project_id" {
+ type        = string
+ default     = "${organization_id}-vertex-project"
+ description = "globally unique id of vertex workbench project to be created"
+}
+
+variable "cloud_storage_bucket_name" {
+ type        = string
+ default     = "${data_project_id}-vpc-sc-storage-bucket"
+ description = "globally unique name of cloud storage bucket to be created"
+}
+variable "create_default_access_policy" {
+ type        = bool
+ default     = false
+ description = "Whether a default access policy needs to be created for the organization. If one already exists, this should be set to false."
+}
+
+variable "ip_allow" {
+ type        = list(string)
+ description = "IP address to add to the allow list for VPC Service Controls. this IP will be the only IP allowed to connect to Vertex"
+}
+
+*****************************/
+
+# VPC-SC
+variable "policy_name" {
+  description = "The policy's name."
+  type        = string
+  default     = "service_perimeter"
+}
+
+variable "perimeter_name" {
+  description = "Name of perimeter."
+  type        = string
+  default     = "regular_perimeter"
+}
+
+variable "restricted_services" {
+  description = "List of services to restrict."
+  type        = list(string)
+  default = [
+    "compute.googleapis.com",
+    "notebooks.googleapis.com",
+    "dns.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "storage.googleapis.com",
+    "logging.googleapis.com",
+    "aiplatform.googleapis.com",
+    "compute.googleapis.com"
+  ]
+}
+
+
+variable "enforced_regional_access" {
+  description = "CountryRegion "
+  type        = list(string)
+  default = [
+    "US", # USA
+    "CA", # Canada
+    #    "UM", #  US Minor Outlying Islands
+  ]
+}
+
