@@ -24,7 +24,7 @@
 variable "organization_id" {
   type        = string
   description = "organization id required"
-  default     = "873180247571"
+  default     = "XXXXXXXX"
 }
 
 variable "billing_account" {
