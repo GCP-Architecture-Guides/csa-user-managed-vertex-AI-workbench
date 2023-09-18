@@ -36,8 +36,8 @@ The following steps should be executed in Cloud Shell in the Google Cloud Consol
 Clone this github repository go to the root of the repository.
 
 ``` 
-git clone https://github.com/GCP-Architecture-Guides/gen-ai-dlp-integration.git
-cd gen-ai-dlp-integration
+git clone https://github.com/GCP-Architecture-Guides/csa-user-managed-vertex-AI-workbench.git
+cd csa-user-managed-vertex-AI-workbench
 ```
 
 ### 2. Deploy the infrastructure using Terraform
